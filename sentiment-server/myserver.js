@@ -78,20 +78,25 @@ class SentimentPredictor {
 
   predict(text) {
     // Convert to lower case and remove all punctuations.
-    text = text.substring(1, text.length - 1);
+    //text = text.substring(1, text.length - 1);
     
     const inputText =
-        text.trim().toLowerCase().replace(/(\.|\,|\!)/g, '').split(' ');
+        text.trim().toLowerCase().replace(/(\.|\,|\!)/g, '').split(' ').filter(word => word.length > 1);
     // Convert the words to a sequence of word indices.
+    console.log(OOV_CHAR);
     const sequence = inputText.map(word => {
       let wordIndex = this.wordIndex[word] + this.indexFrom;
       if (wordIndex > this.vocabularySize) {
         wordIndex = OOV_CHAR;
       }
+      if (isNaN(wordIndex)) { 
+	      return 0;
+      }
       return wordIndex;
     });
     // Perform truncation and padding.
     const paddedSequence = padSequences([sequence], this.maxLen);
+    console.log(paddedSequence[0]);
     const input = tf.tensor2d(paddedSequence, [1, this.maxLen]);
 
     const beginMs = moment().valueOf();
@@ -118,6 +123,7 @@ async function setupServer() {
 
 	http.createServer(function(request,response){
 		if (request.method == 'POST') {
+			console.log('New connection');
 			var post = '';
 	 
 			request.on('data',function(message){
@@ -128,13 +134,15 @@ async function setupServer() {
 			 });
 	 
 			 request.on('end',function(){
-				var body = qs.parse(post);
-				var res = predictor.predict(body['input']);
+				const body = post.split('\n');
+
+				console.log(body);
+				var res = body.map(phrase => predictor.predict(phrase));
 
 				response.writeHead(200);
-				response.write(res['score'].toString());
+				res.forEach(cell => response.write(cell['score'].toString() + '\n'));
 				response.end();
-				console.log(res['elapsed']);
+				console.log(res);
 			 });
 		} else {
 			response.writeHead(405);
