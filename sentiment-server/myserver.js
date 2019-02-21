@@ -3,6 +3,8 @@ import {OOV_CHAR, padSequences} from './sequence_utils';
 import * as fs from 'fs';
 
 var http = require('http');
+var qs = require('querystring');
+var moment = require('moment');
 
 require('@tensorflow/tfjs-node')
 	
@@ -27,7 +29,7 @@ function _fetch(url) {
 
 export async function loadHostedPretrainedModel(url) {
   try {
-    const model = await tf.loadModel(url);
+    const model = await tf.loadModel('file:///home/lowener/good-mood/sentiment-server/dist/resources/model.json');
     return model;
   } catch (err) {
     console.error(err);
@@ -41,8 +43,9 @@ export async function loadHostedPretrainedModel(url) {
  */
 export async function loadHostedMetadata(url) {
   try {
-    const metadata = await fs.readFileSync(url);  // _fetch(url);
-    return metadata;
+    const metadata = await fs.readFileSync(url, "utf-8");  // _fetch(url);
+
+    return JSON.parse(metadata);
   } catch (err) {
     console.error(err);
   }
@@ -75,6 +78,8 @@ class SentimentPredictor {
 
   predict(text) {
     // Convert to lower case and remove all punctuations.
+    text = text.substring(1, text.length - 1);
+    
     const inputText =
         text.trim().toLowerCase().replace(/(\.|\,|\!)/g, '').split(' ');
     // Convert the words to a sequence of word indices.
@@ -89,11 +94,11 @@ class SentimentPredictor {
     const paddedSequence = padSequences([sequence], this.maxLen);
     const input = tf.tensor2d(paddedSequence, [1, this.maxLen]);
 
-    const beginMs = performance.now();
+    const beginMs = moment().valueOf();
     const predictOut = this.model.predict(input);
     const score = predictOut.dataSync()[0];
     predictOut.dispose();
-    const endMs = performance.now();
+    const endMs = moment().valueOf();
 
     return {score: score, elapsed: (endMs - beginMs)};
   }
@@ -101,8 +106,9 @@ class SentimentPredictor {
 
 async function setupServer() {
 	console.log('Loading server');
+	var predictor = '';
 	try {
-		const predictor = await new SentimentPredictor().init(LOCAL_URLS);
+		predictor = await new SentimentPredictor().init(LOCAL_URLS);
 		console.log('Predictor loaded');
 	} catch (e) {
 		console.log(e);	
@@ -111,16 +117,28 @@ async function setupServer() {
 
 
 	http.createServer(function(request,response){
-		response.writeHead(200);
+		if (request.method == 'POST') {
+			var post = '';
 	 
-		request.on('data',function(message){
-			var res = predictor.predict(message);
-			response.write(res);
-		 });
+			request.on('data',function(message){
+				post += message;
+				if (post.length > 1e6) {
+					request.connection.destroy();
+				}
+			 });
 	 
-		 request.on('end',function(){
-			response.end();
-		 });
+			 request.on('end',function(){
+				var body = qs.parse(post);
+				var res = predictor.predict(body['input']);
+
+				response.writeHead(200);
+				response.write(res['score'].toString());
+				response.end();
+				console.log(res['elapsed']);
+			 });
+		} else {
+			response.writeHead(405);
+		}
 	 }).listen(1234);
 }
 
