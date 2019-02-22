@@ -78,12 +78,10 @@ class SentimentPredictor {
 
   predict(text) {
     // Convert to lower case and remove all punctuations.
-    //text = text.substring(1, text.length - 1);
     
     const inputText =
         text.trim().toLowerCase().replace(/(\.|\,|\!)/g, '').split(' ').filter(word => word.length > 1);
     // Convert the words to a sequence of word indices.
-    console.log(OOV_CHAR);
     const sequence = inputText.map(word => {
       let wordIndex = this.wordIndex[word] + this.indexFrom;
       if (wordIndex > this.vocabularySize) {
@@ -96,7 +94,6 @@ class SentimentPredictor {
     });
     // Perform truncation and padding.
     const paddedSequence = padSequences([sequence], this.maxLen);
-    console.log(paddedSequence[0]);
     const input = tf.tensor2d(paddedSequence, [1, this.maxLen]);
 
     const beginMs = moment().valueOf();
