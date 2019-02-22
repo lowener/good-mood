@@ -29,7 +29,7 @@ function _fetch(url) {
 
 export async function loadHostedPretrainedModel(url) {
   try {
-    const model = await tf.loadModel('file:///home/lowener/good-mood/sentiment-server/dist/resources/model.json');
+    const model = await tf.loadModel('file://dist/resources/model.json');
     return model;
   } catch (err) {
     console.error(err);
