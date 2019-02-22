@@ -1,1 +1,1 @@
-web: yarn myserv
+web: yarn && yarn myserv
