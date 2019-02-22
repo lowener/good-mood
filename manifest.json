@@ -7,7 +7,7 @@
 
     "content_scripts": [
         {
-            "matches": ["<all_urls>"],
+            "matches": ["*://www.nytimes.com/*", "*://www.lemonde.fr/*"],
             "js": ["good-mood.js"]
         }
     ],
@@ -16,5 +16,4 @@
       "<all_urls>",
       "webRequest"
     ]
-
 }
