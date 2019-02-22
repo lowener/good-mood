@@ -3,6 +3,6 @@
   "description": "Node.js server",
   "repository": "https://github.com/lowener/good-mood",
   "logo": "https://cdn.rawgit.com/heroku/node-js-getting-started/master/public/node.svg",
-  "keywords": ["node", "heroku"],
+  "keywords": ["nodejs", "heroku"],
   "image": "heroku/nodejs"
 }
