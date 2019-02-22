@@ -5,6 +5,7 @@ import * as fs from 'fs';
 var http = require('http');
 var qs = require('querystring');
 var moment = require('moment');
+var PORT = process.env.PORT || 1234;
 
 require('@tensorflow/tfjs-node')
 	
@@ -144,7 +145,7 @@ async function setupServer() {
 		} else {
 			response.writeHead(405);
 		}
-	 }).listen(1234);
+	 }).listen(PORT);
 }
 
 
