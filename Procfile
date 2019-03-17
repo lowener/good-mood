@@ -1,1 +1,1 @@
-web: yarn && yarn myserv
+web: yarn && yarn myport && yarn myserv

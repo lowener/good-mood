@@ -25,6 +25,7 @@
     "postinstall": "yarn upgrade --pattern @tensorflow",
     "train": "babel-node train.js",
     "myserv": "babel-node sentiment-server/myserver.js"
+    "myport": "babel-node sentiment-server/heroku_port.js"
   },
   "devDependencies": {
     "@tensorflow/tfjs-node": "0.2.3",
