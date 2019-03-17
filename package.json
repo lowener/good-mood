@@ -17,10 +17,10 @@
     "babel-plugin-transform-runtime": "~6.23.0",
     "babel-polyfill": "~6.26.0",
     "babel-preset-env": "~1.6.1"
-  },
+ },
   "scripts": {
     "watch": "./serve.sh",
-    "build": "cross-env NODE_ENV=production parcel build index.html  --no-minify --public-url ./",
+    "build2": "cross-env NODE_ENV=production parcel build index.html  --no-minify --public-url ./",
     "link-local": "yalc link",
     "postinstall": "yarn upgrade --pattern @tensorflow",
     "train": "babel-node train.js",
